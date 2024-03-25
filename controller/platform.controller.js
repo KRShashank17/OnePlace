@@ -72,7 +72,39 @@ const codeForcesController = AsyncHandler(async (req, res, next) => {
         return res.json(new ApiResponse(200, "CodeForces Controller Working...", data));
 })
 
+const codeChefController = AsyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
+    // console.log(userId);
+    if (!userId) {
+        throw new ApiError(400, "User Handle required");
+    }
+    
+    const url = `https://www.codechef.com/users/${userId}`;
+    let response = await axios.get(url);
+    // console.log(response.data);
+    
+    const $ = await cheerio.load(response.data);
+    const rating = $('.rating-number').text();
+    const stars = $('.rating-star').text();
+    const globalRank = $('.rating-ranks > .inline-list > li > a').children().first().text();
+    const countryRank = $('.rating-ranks > .inline-list ').children().last().children().first().text();
+
+    // console.log(rating , stars , globalRank, countryRank);
+
+    const data = {
+        "userId" : userId,
+        "rating" : rating,
+        "stars" : stars,
+        "globalRank" : globalRank,
+        "countryRank" : countryRank,
+    }
+
+    return res.status(200)
+              .json(new ApiResponse(200, "CodeChef Controller Working...",data))
+})
+
 export { 
     leetcodeController ,
-    codeForcesController
+    codeForcesController,
+    codeChefController
 };
