@@ -103,8 +103,47 @@ const codeChefController = AsyncHandler(async (req, res, next) => {
               .json(new ApiResponse(200, "CodeChef Controller Working...",data))
 })
 
+
+const gfgController = AsyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
+    if (!userId) {
+        throw new ApiError(400, "User Handle required");
+    }
+    
+    const url = `https://auth.geeksforgeeks.org/user/${userId}`;
+    let response = await axios.get(url);
+    // console.log(userId);
+    // console.log(response.data);
+    
+    const $ = await cheerio.load(response.data);
+    const college = $('.basic_details_data > a').text();
+    const collegeRank = $('.rankNum').children().first().text();
+    
+            //* contains many classes with "score_card_value" --- USE MAP
+    // const score = $('.score_card_value').first().text();
+    // const problemsSolved = $('.score_card_value').next().text();
+    const detailsArray = $('.score_card_value').map((i, el) => $(el).text()).get();
+    const score = detailsArray[0];
+    const problemsSolved = detailsArray[1];
+
+    console.log(college , " " , collegeRank, " ", detailsArray," ");
+    console.log(score , " ",problemsSolved);
+
+    const data = {
+        "userId" : userId,
+        "college": college,
+        "collegeRank" : collegeRank,
+        "score" : score,
+        "problemsSolved" : problemsSolved,
+    }
+
+    return res.status(200)
+              .json(new ApiResponse(200, "CodeChef Controller Working..." , data))
+})
+
 export { 
     leetcodeController ,
     codeForcesController,
-    codeChefController
+    codeChefController,
+    gfgController
 };
