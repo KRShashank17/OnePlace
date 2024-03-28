@@ -141,9 +141,25 @@ const gfgController = AsyncHandler(async (req, res, next) => {
               .json(new ApiResponse(200, "CodeChef Controller Working..." , data))
 })
 
+const hackerRankController = AsyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
+    if (!userId) {
+        throw new ApiError(400, "User Handle required");
+    }
+    
+    const url = `https://www.hackerrank.com/profile/${userId}`;
+    let response = await axios.get(url);
+    console.log(userId);
+    console.log(response.data);
+
+    return res.status(200)
+              .json(new ApiResponse(200, "HackerRank Controller Working..."))
+})
+
 export { 
     leetcodeController ,
     codeForcesController,
     codeChefController,
-    gfgController
+    gfgController,
+    hackerRankController
 };
